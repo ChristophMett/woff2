@@ -1,0 +1,39 @@
+name: Build Windows
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Set up MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          make
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-cmake
+    
+    - name: Build with Make
+      shell: msys2 {0}
+      run: |
+        make clean all
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: woff2-windows-build
+        path: |
+          **/*.exe
+          **/*.dll
+          **/*.a
+          **/*.lib
